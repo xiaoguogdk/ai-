@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赛博AI图像生成器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 赛博朋克主题样式 */
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --neon-purple: #b700ff;
+            --neon-green: #00ff00;
+            --dark-bg: #0a0a0f;
+            --dark-surface: #1a1a2e;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a0033 50%, #0a0a0f 100%);
+            font-family: 'Rajdhani', sans-serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景动画网格 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: grid-move 10s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* 霓虹发光效果 */
+        .neon-text {
+            font-family: 'Orbitron', monospace;
+            text-shadow: 
+                0 0 10px var(--neon-cyan),
+                0 0 20px var(--neon-cyan),
+                0 0 30px var(--neon-cyan),
+                0 0 40px var(--neon-pink);
+            animation: neon-flicker 2s infinite alternate;
+        }
+
+        @keyframes neon-flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* 霓虹边框 */
+        .neon-border {
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 
+                0 0 10px var(--neon-cyan),
+                0 0 20px var(--neon-cyan),
+                inset 0 0 10px rgba(0, 255, 255, 0.1);
+        }
+
+        .neon-border-pink {
+            border: 2px solid var(--neon-pink);
+            box-shadow: 
+                0 0 10px var(--neon-pink),
+                0 0 20px var(--neon-pink),
+                inset 0 0 10px rgba(255, 0, 255, 0.1);
+        }
+
+        /* 消息气泡样式 */
+        .message-user {
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.1), rgba(183, 0, 255, 0.1));
+            border: 1px solid var(--neon-pink);
+            box-shadow: 
+                0 0 10px rgba(255, 0, 255, 0.3),
+                inset 0 0 5px rgba(255, 0, 255, 0.1);
+        }
+
+        .message-ai {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 183, 255, 0.1));
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 
+                0 0 10px rgba(0, 255, 255, 0.3),
+                inset 0 0 5px rgba(0, 255, 255, 0.1);
+        }
+
+        /* 输入框样式 */
+        .cyber-input {
+            background: rgba(26, 26, 46, 0.8);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: 'Rajdhani', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .cyber-input:focus {
+            outline: none;
+            box-shadow: 
+                0 0 15px var(--neon-cyan),
+                inset 0 0 10px rgba(0, 255, 255, 0.1);
+            background: rgba(26, 26, 46, 0.95);
+        }
+
+        /* 按钮样式 */
+        .cyber-btn {
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .cyber-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .cyber-btn:hover::before {
+            left: 100%;
+        }
+
+        .cyber-btn:hover {
+            box-shadow: 
+                0 0 20px var(--neon-pink),
+                0 0 40px var(--neon-pink);
+            transform: translateY(-2px);
+        }
+
+        /* 图片容器样式 */
+        .cyber-image {
+            border: 2px solid var(--neon-green);
+            box-shadow: 
+                0 0 20px var(--neon-green),
+                inset 0 0 10px rgba(0, 255, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyber-image::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-cyan), var(--neon-pink), var(--neon-purple));
+            z-index: -1;
+            animation: border-rotate 3s linear infinite;
+        }
+
+        @keyframes border-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 加载动画 */
+        .cyber-loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid transparent;
+            border-top: 3px solid var(--neon-cyan);
+            border-right: 3px solid var(--neon-pink);
+            border-radius: 50%;
+            animation: cyber-spin 1s linear infinite;
+        }
+
+        @keyframes cyber-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(26, 26, 46, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-cyan));
+        }
+
+        /* 扫描线效果 */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            animation: scan 4s linear infinite;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+
+        /* 故障效果 */
+        .glitch {
+            position: relative;
+            animation: glitch-animation 3s infinite;
+        }
+
+        @keyframes glitch-animation {
+            0%, 100% { 
+                text-shadow: 
+                    0 0 10px var(--neon-cyan),
+                    0 0 20px var(--neon-cyan),
+                    0 0 30px var(--neon-cyan);
+            }
+            25% {
+                text-shadow: 
+                    -2px 0 var(--neon-pink),
+                    2px 0 var(--neon-cyan),
+                    0 0 10px var(--neon-cyan),
+                    0 0 20px var(--neon-cyan);
+            }
+            50% {
+                text-shadow: 
+                    2px 0 var(--neon-pink),
+                    -2px 0 var(--neon-cyan),
+                    0 0 10px var(--neon-pink),
+                    0 0 20px var(--neon-pink);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-100">
+    <!-- 扫描线效果 -->
+    <div class="scanline"></div>
+    
+    <!-- 主容器 -->
+    <div class="relative z-10 flex flex-col h-screen max-w-6xl mx-auto p-4">
+        <!-- 标题 -->
+        <header class="text-center py-6 mb-6">
+            <h1 class="text-4xl md:text-6xl font-black neon-text glitch tracking-wider">
+                CYBER AI
+            </h1>
+            <p class="text-xl md:text-2xl mt-2 text-cyan-400 font-light tracking-widest uppercase">
+                Neural Image Synthesis
+            </p>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="flex-1 flex gap-4 overflow-hidden">
+            <!-- 对话区域 -->
+            <div class="flex-1 flex flex-col neon-border rounded-lg p-4" style="background: rgba(26, 26, 46, 0.3); backdrop-filter: blur(10px);">
+                <div id="chatArea" class="flex-1 overflow-y-auto space-y-4 pr-2">
+                    <!-- 欢迎消息 -->
+                    <div class="message-ai rounded-lg p-4 max-w-[80%]">
+                        <p class="text-cyan-300">
+                            <span class="text-xs uppercase tracking-wider text-cyan-500">[ SYSTEM ONLINE ]</span><br>
+                            欢迎进入赛博AI图像合成系统。输入指令开始对话或生成图像。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图片展示区域 -->
+            <div class="w-1/3 min-w-[300px] neon-border-pink rounded-lg p-4" style="background: rgba(26, 26, 46, 0.3); backdrop-filter: blur(10px);">
+                <h2 class="text-lg font-bold mb-4 text-pink-400 uppercase tracking-wider flex items-center">
+                    <span class="inline-block w-2 h-2 bg-pink-500 rounded-full mr-2 animate-pulse"></span>
+                    Generated Output
+                </h2>
+                <div id="imageArea" class="space-y-4 overflow-y-auto h-full">
+                    <div class="text-center text-gray-500 text-sm uppercase tracking-wider">
+                        [ No Data ]
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 输入区域 -->
+        <div class="mt-4 p-4 neon-border rounded-lg" style="background: rgba(26, 26, 46, 0.5); backdrop-filter: blur(10px);">
+            <div class="flex gap-3">
+                <input 
+                    type="text" 
+                    id="userInput" 
+                    placeholder="输入指令... /" 
+                    class="flex-1 px-4 py-3 rounded-lg cyber-input text-lg"
+                    aria-label="输入消息"
+                >
+                <button 
+                    id="sendBtn" 
+                    class="px-8 py-3 rounded-lg cyber-btn"
+                    aria-label="发送消息"
+                >
+                    TRANSMIT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
