@@ -1,4 +1,4 @@
-// AI对话生成图片应用
+ // AI对话生成图片应用
 class ChatApp {
     constructor() {
         this.chatArea = document.getElementById('chatArea');
@@ -391,25 +391,25 @@ class ChatApp {
         const messageDiv = document.createElement('div');
         
         if (type === 'user') {
-            messageDiv.className = 'message-user rounded-lg p-4 max-w-[80%] ml-auto animate-fade-in';
+            messageDiv.className = 'message-user rounded-lg p-3 md:p-4 max-w-[90%] sm:max-w-[80%] ml-auto animate-fade-in';
             messageDiv.innerHTML = `
-                <p class="text-pink-300">
+                <p class="text-pink-300 text-sm md:text-base">
                     <span class="text-xs uppercase tracking-wider text-pink-500">[ USER ]</span><br>
                     ${this.escapeHtml(content)}
                 </p>
             `;
         } else if (type === 'ai') {
-            messageDiv.className = 'message-ai rounded-lg p-4 max-w-[80%] animate-fade-in';
+            messageDiv.className = 'message-ai rounded-lg p-3 md:p-4 max-w-[90%] sm:max-w-[80%] animate-fade-in';
             messageDiv.innerHTML = `
-                <p class="text-cyan-300">
+                <p class="text-cyan-300 text-sm md:text-base">
                     <span class="text-xs uppercase tracking-wider text-cyan-500">[ SYSTEM ]</span><br>
                     ${this.escapeHtml(content)}
                 </p>
             `;
         } else if (type === 'error') {
-            messageDiv.className = 'message-ai rounded-lg p-4 max-w-[80%] animate-fade-in border-red-500';
+            messageDiv.className = 'message-ai rounded-lg p-3 md:p-4 max-w-[90%] sm:max-w-[80%] animate-fade-in border-red-500';
             messageDiv.innerHTML = `
-                <p class="text-red-400">
+                <p class="text-red-400 text-sm md:text-base">
                     <span class="text-xs uppercase tracking-wider text-red-500">[ ERROR ]</span><br>
                     ${this.escapeHtml(content)}
                 </p>
@@ -423,11 +423,11 @@ class ChatApp {
     showLoading() {
         const loadingDiv = document.createElement('div');
         loadingDiv.id = 'loading-' + Date.now();
-        loadingDiv.className = 'message-ai rounded-lg p-4 max-w-[80%] animate-fade-in';
+        loadingDiv.className = 'message-ai rounded-lg p-3 md:p-4 max-w-[90%] sm:max-w-[80%] animate-fade-in';
         loadingDiv.innerHTML = `
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 md:gap-3">
                 <div class="cyber-loader"></div>
-                <span class="text-cyan-400 uppercase tracking-wider animate-pulse">Processing...</span>
+                <span class="text-cyan-400 text-sm md:text-base uppercase tracking-wider animate-pulse">Processing...</span>
             </div>
         `;
         this.chatArea.appendChild(loadingDiv);
